@@ -1,0 +1,13 @@
+# Force Railpack/Nixpacks-style builders to publish the API project
+# from the src folder (includes ProjectReferences).
+[phases.setup]
+nixPkgs = ["dotnet-sdk_10"]
+
+[phases.install]
+cmds = ["dotnet restore src/Archive.Api/Archive.Api.csproj"]
+
+[phases.build]
+cmds = ["dotnet publish src/Archive.Api/Archive.Api.csproj -c Release -o out"]
+
+[start]
+cmd = "ASPNETCORE_URLS=http://0.0.0.0:${PORT:-8080} ASPNETCORE_ENVIRONMENT=Production dotnet out/Archive.Api.dll"

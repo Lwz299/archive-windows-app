@@ -1,0 +1,10 @@
+**/bin/
+**/obj/
+**/.vs/
+**/.git/
+**/publish/
+archive/
+src/Archive.Desktop/
+*.db
+*.md
+.dockerignore
