@@ -26,20 +26,27 @@ public partial class Form1 : Form
         InitializeComponent();
 
         var apiBaseUrl = LoadApiBaseUrl();
-        _httpClient = new HttpClient { BaseAddress = new Uri(apiBaseUrl) };
+        _httpClient = new HttpClient
+        {
+            BaseAddress = new Uri(apiBaseUrl),
+            // Render free tier may sleep; first request can take up to ~60s
+            Timeout = TimeSpan.FromSeconds(100)
+        };
+        _httpClient.DefaultRequestHeaders.Accept.ParseAdd("application/json");
         _authClient = new AuthApiClient(_httpClient);
         _bookClient = new BookApiClient(_httpClient);
         _categoryClient = new CategoryApiClient(_httpClient);
         _userClient = new UserApiClient(_httpClient);
         _session = new SessionService();
 
+        Text = $"أرشيف الكتب — {apiBaseUrl.TrimEnd('/')}";
         Load += Form1_Load;
     }
 
     private static string LoadApiBaseUrl()
     {
         var configPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "appsettings.json");
-        const string fallback = "http://localhost:5101/";
+        const string fallback = "https://archive-windows-app.onrender.com/";
         try
         {
             if (!File.Exists(configPath))
@@ -51,12 +58,18 @@ public partial class Form1 : Form
             if (doc.RootElement.TryGetProperty("ApiBaseUrl", out var url)
                 && url.GetString() is { Length: > 0 } value)
             {
-                return value.EndsWith('/') ? value : value + "/";
+                value = value.Trim();
+                if (!value.EndsWith('/'))
+                {
+                    value += "/";
+                }
+
+                return value;
             }
         }
         catch
         {
-            // Fall back to local API
+            // Fall back to production API
         }
 
         return fallback;
