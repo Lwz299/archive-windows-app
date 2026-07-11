@@ -1,3 +1,10 @@
 <Solution>
-  <Project Path="archive/archive.csproj" />
+  <Folder Name="/src/">
+    <Project Path="src/Archive.Api/Archive.Api.csproj" />
+    <Project Path="src/Archive.Application/Archive.Application.csproj" />
+    <Project Path="src/Archive.Contracts/Archive.Contracts.csproj" />
+    <Project Path="src/Archive.Desktop/Archive.Desktop.csproj" />
+    <Project Path="src/Archive.Domain/Archive.Domain.csproj" />
+    <Project Path="src/Archive.Infrastructure/Archive.Infrastructure.csproj" />
+  </Folder>
 </Solution>
