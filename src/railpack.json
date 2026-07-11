@@ -1,0 +1,21 @@
+{
+  "$schema": "https://schema.railpack.com",
+  "steps": {
+    "install": {
+      "commands": [
+        "dotnet restore Archive.Api/Archive.Api.csproj"
+      ]
+    },
+    "build": {
+      "commands": [
+        "dotnet publish Archive.Api/Archive.Api.csproj -c Release -o out"
+      ]
+    }
+  },
+  "deploy": {
+    "startCommand": "ASPNETCORE_URLS=http://0.0.0.0:${PORT:-8080} ASPNETCORE_ENVIRONMENT=Production dotnet out/Archive.Api.dll",
+    "variables": {
+      "ASPNETCORE_ENVIRONMENT": "Production"
+    }
+  }
+}

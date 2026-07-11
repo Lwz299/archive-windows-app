@@ -1,0 +1,4 @@
+**/bin/
+**/obj/
+Archive.Desktop/
+*.db
