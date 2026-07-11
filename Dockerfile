@@ -23,7 +23,8 @@ WORKDIR /app
 COPY --from=build /app/publish .
 
 ENV ASPNETCORE_ENVIRONMENT=Production
-ENV ASPNETCORE_URLS=http://0.0.0.0:8080
-
+# Render injects PORT; default 8080 for local docker runs
+ENV PORT=8080
 EXPOSE 8080
-ENTRYPOINT ["dotnet", "Archive.Api.dll"]
+
+CMD ASPNETCORE_URLS=http://0.0.0.0:${PORT:-8080} dotnet Archive.Api.dll

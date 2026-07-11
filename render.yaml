@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: archive-api
+    runtime: docker
+    plan: free
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    healthCheckPath: /api/auth/setup
+    envVars:
+      - key: ASPNETCORE_ENVIRONMENT
+        value: Production
+      - key: Jwt__Secret
+        sync: false
+      - key: ConnectionStrings__DefaultConnection
+        sync: false
