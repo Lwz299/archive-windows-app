@@ -40,6 +40,7 @@
   const searchInput = document.getElementById("searchInput");
   const categoryFilter = document.getElementById("categoryFilter");
   const addBookBtn = document.getElementById("addBookBtn");
+  const logoutBtn = document.getElementById("logoutBtn");
 
   const bookModal = document.getElementById("bookModal");
   const modalTitle = document.getElementById("modalTitle");
@@ -196,6 +197,7 @@
   }
 
   addBookBtn.addEventListener("click", openAddModal);
+  logoutBtn.addEventListener("click", () => sendRequest("logout", {}));
   closeModalBtn.addEventListener("click", closeModal);
   cancelBtn.addEventListener("click", closeModal);
 

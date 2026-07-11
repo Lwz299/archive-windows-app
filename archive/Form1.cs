@@ -9,12 +9,14 @@ namespace archive
 	public partial class Form1 : Form
 	{
 		private readonly BookService _bookService = new();
+		private readonly AuthService _authService;
 		private const string AppHost = "archive.app";
 		private const string DataHost = "archive.data";
 
 		public Form1()
 		{
 			InitializeComponent();
+			_authService = new AuthService(_bookService.AppDataFolder);
 			Load += Form1_Load;
 		}
 
@@ -33,7 +35,7 @@ namespace archive
 				DataHost, _bookService.AppDataFolder, CoreWebView2HostResourceAccessKind.Allow);
 
 			webView.CoreWebView2.WebMessageReceived += CoreWebView2_WebMessageReceived;
-			webView.CoreWebView2.Navigate($"https://{AppHost}/index.html");
+			webView.CoreWebView2.Navigate($"https://{AppHost}/login.html");
 		}
 
 		private async void CoreWebView2_WebMessageReceived(object? sender, CoreWebView2WebMessageReceivedEventArgs e)
@@ -48,6 +50,10 @@ namespace archive
 
 				JsonObject response = action switch
 				{
+					"checkSetup" => HandleCheckSetup(),
+					"login" => HandleLogin(payload),
+					"register" => HandleRegister(payload),
+					"logout" => HandleLogout(),
 					"list" => HandleList(payload),
 					"add" => HandleAdd(payload),
 					"update" => HandleUpdate(payload),
@@ -64,6 +70,50 @@ namespace archive
 			{
 				MessageBox.Show(this, $"حدث خطأ: {ex.Message}", "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
 			}
+		}
+
+		private JsonObject HandleCheckSetup()
+		{
+			return new JsonObject { ["hasUsers"] = _authService.HasAnyUser() };
+		}
+
+		private JsonObject HandleLogin(JsonObject? payload)
+		{
+			var username = payload?["username"]?.GetValue<string>() ?? string.Empty;
+			var password = payload?["password"]?.GetValue<string>() ?? string.Empty;
+			var (success, error) = _authService.Login(username, password);
+
+			if (success)
+			{
+				NavigateToMainApp();
+			}
+
+			return new JsonObject { ["success"] = success, ["error"] = error };
+		}
+
+		private JsonObject HandleRegister(JsonObject? payload)
+		{
+			var username = payload?["username"]?.GetValue<string>() ?? string.Empty;
+			var password = payload?["password"]?.GetValue<string>() ?? string.Empty;
+			var (success, error) = _authService.Register(username, password);
+
+			if (success)
+			{
+				NavigateToMainApp();
+			}
+
+			return new JsonObject { ["success"] = success, ["error"] = error };
+		}
+
+		private JsonObject HandleLogout()
+		{
+			webView.CoreWebView2.Navigate($"https://{AppHost}/login.html");
+			return new JsonObject { ["success"] = true };
+		}
+
+		private void NavigateToMainApp()
+		{
+			webView.CoreWebView2.Navigate($"https://{AppHost}/index.html");
 		}
 
 		private JsonObject HandleList(JsonObject? payload)
