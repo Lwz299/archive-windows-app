@@ -11,18 +11,16 @@ namespace Archive.Infrastructure.Repositories
         public BookRepository(ArchiveDbContext dbContext)
         {
             _dbContext = dbContext;
-            _dbContext.Database.EnsureCreated();
-            EnsureFilePathColumn();
         }
 
-        private void EnsureFilePathColumn()
+        public static void EnsureSchema(ArchiveDbContext dbContext)
         {
-            // Only needed for older local SQLite DBs created before FilePath existed.
-            if (_dbContext.Database.IsSqlite())
+            dbContext.Database.EnsureCreated();
+            if (dbContext.Database.IsSqlite())
             {
                 try
                 {
-                    _dbContext.Database.ExecuteSqlRaw(
+                    dbContext.Database.ExecuteSqlRaw(
                         "ALTER TABLE Books ADD COLUMN FilePath TEXT NULL");
                 }
                 catch

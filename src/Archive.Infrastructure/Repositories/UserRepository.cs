@@ -11,7 +11,6 @@ namespace Archive.Infrastructure.Repositories
         public UserRepository(ArchiveDbContext dbContext)
         {
             _dbContext = dbContext;
-            _dbContext.Database.EnsureCreated();
         }
 
         public Task<bool> HasAnyUserAsync()

@@ -50,8 +50,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-// Desktop client uses HTTP on localhost:5101; skip HTTPS redirect in Development
-if (!app.Environment.IsDevelopment())
+// Render and most hosts terminate TLS at the proxy; the app listens on HTTP.
+if (!app.Environment.IsDevelopment() && string.IsNullOrEmpty(Environment.GetEnvironmentVariable("RENDER")))
 {
     app.UseHttpsRedirection();
 }
@@ -61,9 +61,12 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-// Seed default users if DB is empty
+// Create schema once at startup, then seed default users if empty
 using (var scope = app.Services.CreateScope())
 {
+    var db = scope.ServiceProvider.GetRequiredService<Archive.Infrastructure.Persistence.ArchiveDbContext>();
+    Archive.Infrastructure.Repositories.BookRepository.EnsureSchema(db);
+
     var userRepo = scope.ServiceProvider.GetRequiredService<IUserRepository>();
     var passwordHasher = scope.ServiceProvider.GetRequiredService<IPasswordHasher>();
     var hasAny = userRepo.HasAnyUserAsync().GetAwaiter().GetResult();
