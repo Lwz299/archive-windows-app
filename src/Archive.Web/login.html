@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>تسجيل الدخول - أرشيف الكتب</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/login.css" />
+</head>
+<body class="login-body">
+  <div class="login-wrapper">
+    <div class="login-card">
+      <div class="login-logo">
+        <span class="logo-icon">📚</span>
+        <h1>أرشيف الكتب</h1>
+      </div>
+      <p class="login-subtitle">واجهة الويب — نفس API تطبيق الويندوز</p>
+
+      <form id="loginForm">
+        <div class="form-row">
+          <label>اسم المستخدم</label>
+          <input type="text" id="username" autocomplete="username" required />
+        </div>
+        <div class="form-row">
+          <label>كلمة المرور</label>
+          <input type="password" id="password" autocomplete="current-password" required />
+        </div>
+        <p id="errorMessage" class="error-message hidden"></p>
+        <button type="submit" class="btn btn-primary login-btn">دخول</button>
+      </form>
+      <p class="setup-hint">admin / AdminPass123!</p>
+    </div>
+  </div>
+
+  <script src="js/config.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/login.js"></script>
+</body>
+</html>

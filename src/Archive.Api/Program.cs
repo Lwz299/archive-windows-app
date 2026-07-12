@@ -76,6 +76,23 @@ builder.Services.AddAuthentication(options =>
 
 builder.Services.AddAuthorization();
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowWebClients", policy =>
+    {
+        var origins = builder.Configuration.GetSection("Cors:Origins").Get<string[]>() ?? [];
+        if (origins.Length == 0 || origins.Any(o => o == "*"))
+        {
+            // Learning / multi-client: Windows exe does not need CORS; browsers do.
+            policy.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod();
+        }
+        else
+        {
+            policy.WithOrigins(origins).AllowAnyHeader().AllowAnyMethod();
+        }
+    });
+});
+
 var app = builder.Build();
 
 var swaggerEnabled = builder.Configuration.GetValue("Swagger:Enabled", true);
@@ -96,6 +113,7 @@ if (!app.Environment.IsDevelopment() && string.IsNullOrEmpty(Environment.GetEnvi
     app.UseHttpsRedirection();
 }
 
+app.UseCors("AllowWebClients");
 app.UseAuthentication();
 app.UseAuthorization();
 
