@@ -10,9 +10,12 @@
     return localStorage.getItem(TOKEN_KEY);
   }
 
-  function setSession(token, username, role) {
+  function setSession(token, username, role, permissions) {
     localStorage.setItem(TOKEN_KEY, token);
-    localStorage.setItem(USER_KEY, JSON.stringify({ username, role }));
+    localStorage.setItem(
+      USER_KEY,
+      JSON.stringify({ username, role, permissions: permissions || null })
+    );
   }
 
   function clearSession() {

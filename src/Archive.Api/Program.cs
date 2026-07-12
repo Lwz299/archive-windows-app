@@ -132,9 +132,12 @@ using (var scope = app.Services.CreateScope())
     {
         var now = DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm");
         var defaults = new[] {
-            (Username: "admin", Password: "AdminPass123!", Role: UserRole.SuperAdmin),
+            // قارئ: عرض فقط
+            (Username: "user", Password: "UserPass123!", Role: UserRole.User),
+            // أمين مكتبة: إدارة الكتب + المستخدمين
             (Username: "librarian", Password: "LibPass123!", Role: UserRole.Admin),
-            (Username: "user", Password: "UserPass123!", Role: UserRole.User)
+            // مسؤول النظام: صلاحيات كاملة
+            (Username: "admin", Password: "AdminPass123!", Role: UserRole.SuperAdmin)
         };
 
         foreach (var d in defaults)

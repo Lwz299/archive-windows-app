@@ -134,6 +134,15 @@ public partial class Form1 : Form
                     webView.CoreWebView2.Navigate("https://appassets.local/login.html");
                     await SendResponse(msg.RequestId, new { success = true });
                     break;
+                case "session":
+                    await SendResponse(msg.RequestId, new
+                    {
+                        success = _session.IsAuthenticated,
+                        username = _session.Username,
+                        role = _session.Role,
+                        permissions = _session.Permissions
+                    });
+                    break;
                 case "add":
                     await HandleAddBook(msg);
                     break;
@@ -174,9 +183,9 @@ public partial class Form1 : Form
         try
         {
             var result = await _authClient.LoginAsync(payload);
-            _session.SetSession(result.Username, result.Role, result.Token);
+            _session.SetSession(result.Username, result.Role, result.Token, result.Permissions);
             _httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", result.Token);
-            await SendResponse(msg.RequestId, new { success = true });
+            await SendResponse(msg.RequestId, new { success = true, role = result.Role, permissions = result.Permissions });
             // Navigate to main app after successful login
             webView.CoreWebView2.Navigate("https://appassets.local/index.html");
         }

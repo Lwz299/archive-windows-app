@@ -33,20 +33,39 @@ https://archive-windows-app.onrender.com/swagger/v1/swagger.json
 
 ### Default seeded accounts
 
-| Username | Password | Role |
-|----------|----------|------|
-| `admin` | `AdminPass123!` | SuperAdmin |
-| `librarian` | `LibPass123!` | Admin |
-| `user` | `UserPass123!` | User |
+| Username | Password | Role | What they can do |
+|----------|----------|------|------------------|
+| `user` | `UserPass123!` | User | View books & categories only |
+| `librarian` | `LibPass123!` | Admin | Manage books + list/delete users |
+| `admin` | `AdminPass123!` | SuperAdmin | Full access + create users with any role |
 
 ### Permission matrix
 
-| Endpoint group | Auth required | Roles |
-|----------------|---------------|--------|
-| `/api/auth/*` | No | Public |
-| `/api/books/*` | Yes | Any authenticated role |
-| `/api/categories` | Yes | Any authenticated role |
-| `/api/users/*` | Yes | `Admin`, `SuperAdmin` only |
+| Action | User | Admin (librarian) | SuperAdmin (admin) |
+|--------|------|-------------------|--------------------|
+| Login / view books | Yes | Yes | Yes |
+| Add / edit / delete books | No | Yes | Yes |
+| List / delete users | No | Yes | Yes |
+| Create user with role | No | No | Yes (`POST /api/users`) |
+| Public register | Creates **User** only (after seed) | — | — |
+
+Login response includes:
+
+```json
+{
+  "token": "...",
+  "role": "Admin",
+  "username": "librarian",
+  "permissions": {
+    "canViewBooks": true,
+    "canManageBooks": true,
+    "canManageUsers": true,
+    "canCreateUsers": false
+  }
+}
+```
+
+Also available: `GET /api/auth/me` (JWT required).
 
 ---
 

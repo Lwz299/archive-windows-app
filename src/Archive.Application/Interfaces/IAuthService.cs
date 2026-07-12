@@ -7,6 +7,7 @@ namespace Archive.Application.Interfaces
     {
         Task<LoginResponse> LoginAsync(LoginRequest request);
         Task<UserResponse> RegisterAsync(RegisterRequest request);
+        Task<UserResponse> CreateUserAsAdminAsync(RegisterRequest request);
         Task<bool> HasAnyUserAsync();
     }
 }

@@ -5,11 +5,21 @@
   }
 
   const user = ArchiveApi.getUser();
+  const permissions = user?.permissions || {
+    canViewBooks: true,
+    canManageBooks: false,
+    canManageUsers: false,
+    canCreateUsers: false,
+  };
+
   document.getElementById("userLabel").textContent = user
     ? `${user.username} (${user.role})`
     : "";
 
-  const state = { books: [], categories: [] };
+  const addBookBtn = document.getElementById("addBookBtn");
+  addBookBtn.classList.toggle("hidden", !permissions.canManageBooks);
+
+  const state = { books: [], categories: [], permissions };
   const booksGrid = document.getElementById("booksGrid");
   const emptyState = document.getElementById("emptyState");
   const searchInput = document.getElementById("searchInput");
@@ -74,18 +84,21 @@
       const actions = document.createElement("div");
       actions.className = "book-actions";
 
-      const editBtn = document.createElement("button");
-      editBtn.className = "btn btn-secondary";
-      editBtn.textContent = "تعديل";
-      editBtn.onclick = () => openEdit(book);
+      if (state.permissions.canManageBooks) {
+        const editBtn = document.createElement("button");
+        editBtn.className = "btn btn-secondary";
+        editBtn.textContent = "تعديل";
+        editBtn.onclick = () => openEdit(book);
 
-      const deleteBtn = document.createElement("button");
-      deleteBtn.className = "btn btn-danger";
-      deleteBtn.textContent = "حذف";
-      deleteBtn.onclick = () => removeBook(book.id);
+        const deleteBtn = document.createElement("button");
+        deleteBtn.className = "btn btn-danger";
+        deleteBtn.textContent = "حذف";
+        deleteBtn.onclick = () => removeBook(book.id);
 
-      actions.append(editBtn, deleteBtn);
-      card.appendChild(actions);
+        actions.append(editBtn, deleteBtn);
+        card.appendChild(actions);
+      }
+
       booksGrid.appendChild(card);
     });
   }

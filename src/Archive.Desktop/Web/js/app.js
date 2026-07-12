@@ -4,6 +4,12 @@
 	categories: [],
 	pendingCoverPath: null,
 	pendingFilePath: null,
+	permissions: {
+	  canViewBooks: true,
+	  canManageBooks: false,
+	  canManageUsers: false,
+	  canCreateUsers: false,
+	},
   };
 
   const pendingRequests = new Map();
@@ -132,18 +138,22 @@
 		  alert(result.error || "تعذر فتح الملف");
 		}
 	  };
+	  actions.append(openBtn);
 
-	  const editBtn = document.createElement("button");
-	  editBtn.className = "btn btn-secondary";
-	  editBtn.textContent = "تعديل";
-	  editBtn.onclick = () => openEditModal(book);
+	  if (state.permissions.canManageBooks) {
+		const editBtn = document.createElement("button");
+		editBtn.className = "btn btn-secondary";
+		editBtn.textContent = "تعديل";
+		editBtn.onclick = () => openEditModal(book);
 
-	  const deleteBtn = document.createElement("button");
-	  deleteBtn.className = "btn btn-danger";
-	  deleteBtn.textContent = "حذف";
-	  deleteBtn.onclick = () => deleteBook(book.id);
+		const deleteBtn = document.createElement("button");
+		deleteBtn.className = "btn btn-danger";
+		deleteBtn.textContent = "حذف";
+		deleteBtn.onclick = () => deleteBook(book.id);
 
-	  actions.append(openBtn, editBtn, deleteBtn);
+		actions.append(editBtn, deleteBtn);
+	  }
+
 	  card.append(cover, info, actions);
 	  booksGrid.appendChild(card);
 	});
@@ -286,5 +296,19 @@
 	};
   }
 
-  refreshBooks();
+  async function init() {
+	const session = await sendRequest("session", {});
+	if (session && session.permissions) {
+	  state.permissions = {
+		canViewBooks: !!session.permissions.canViewBooks,
+		canManageBooks: !!session.permissions.canManageBooks,
+		canManageUsers: !!session.permissions.canManageUsers,
+		canCreateUsers: !!session.permissions.canCreateUsers,
+	  };
+	}
+	addBookBtn.classList.toggle("hidden", !state.permissions.canManageBooks);
+	await refreshBooks();
+  }
+
+  init();
 })();

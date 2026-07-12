@@ -1,4 +1,5 @@
 using Archive.Application.Interfaces;
+using Archive.Application.Security;
 using Archive.Contracts.Requests;
 using Archive.Contracts.Responses;
 using Archive.Domain.Enums;
@@ -36,7 +37,8 @@ namespace Archive.Application.Services
             {
                 Username = user.Username,
                 Role = user.Role.ToString(),
-                Token = _jwtTokenGenerator.GenerateToken(user)
+                Token = _jwtTokenGenerator.GenerateToken(user),
+                Permissions = RolePermissions.For(user.Role)
             };
         }
 
@@ -49,15 +51,35 @@ namespace Archive.Application.Services
                 throw new InvalidOperationException("اسم المستخدم موجود مسبقاً");
             }
 
-            var role = exists
-                ? (Enum.TryParse<UserRole>(request.Role, true, out var parsed) ? parsed : UserRole.User)
-                : UserRole.SuperAdmin;
+            // First user ever = SuperAdmin. After seed/users exist, public register is always User only.
+            var role = exists ? UserRole.User : UserRole.SuperAdmin;
 
+            return await CreateUserInternalAsync(request.Username, request.Password, role);
+        }
+
+        public async Task<UserResponse> CreateUserAsAdminAsync(RegisterRequest request)
+        {
+            var existingUser = await _userRepository.GetByUsernameAsync(request.Username);
+            if (existingUser != null)
+            {
+                throw new InvalidOperationException("اسم المستخدم موجود مسبقاً");
+            }
+
+            if (!Enum.TryParse<UserRole>(request.Role, true, out var role))
+            {
+                role = UserRole.User;
+            }
+
+            return await CreateUserInternalAsync(request.Username, request.Password, role);
+        }
+
+        private async Task<UserResponse> CreateUserInternalAsync(string username, string password, UserRole role)
+        {
             var salt = _passwordHasher.GenerateSalt();
-            var hash = _passwordHasher.Hash(request.Password, salt);
+            var hash = _passwordHasher.Hash(password, salt);
             var user = new User
             {
-                Username = request.Username.Trim(),
+                Username = username.Trim(),
                 PasswordHash = hash,
                 Salt = salt,
                 Role = role,

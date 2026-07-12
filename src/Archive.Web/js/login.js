@@ -16,7 +16,12 @@
 
     try {
       const result = await ArchiveApi.login(username, password);
-      ArchiveApi.setSession(result.token, result.username, result.role);
+      ArchiveApi.setSession(
+        result.token,
+        result.username,
+        result.role,
+        result.permissions
+      );
       location.href = "index.html";
     } catch (err) {
       errorMessage.textContent = err.message || "تعذر تسجيل الدخول (قد يكون السيرفر نائماً، أعد المحاولة)";
